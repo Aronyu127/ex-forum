@@ -18,18 +18,24 @@ class TopicCommentsController < ApplicationController
   	redirect_to topic_path(@topic)
     flash[:notice]="回復成功"
   	else 
-  	render :new
+  	redirect_to topic_path(@topic)
+    flash[:alert]="回覆不可留白"
   	end
   end	
 
   def update
     @comment=Comment.find(params[:id])
-    if @comment.update(topic_comments_params)
-    flash[:notice]="修改成功" 
-    redirect_to topic_path(@topic)
+    if @comment.user!=current_user
+      redirect_to topic_path(@topic)
+      flash[:alert]="你僅能修改自己的回覆"
+    elsif @comment.update(topic_comments_params)
+      flash[:notice]="修改成功" 
+      redirect_to topic_path(@topic)
     else
-    render 
-    end 
+      redirect_to topic_path(@topic)
+      flash[:alert]="回覆不可留白"
+    end  
+       
   end  
 
   def destroy

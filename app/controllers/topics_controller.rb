@@ -51,22 +51,34 @@ class TopicsController < ApplicationController
   end
 
   def edit
+    if @topic.user!=current_user
+      redirect_to topics_path(:page => params[:page])
+      flash[:alert]="您僅能修改自己所發布的文章"
+    end  
   end	
 
   def update
-    if @topic.update(topic_params)
+    if @topic.user!=current_user
+      redirect_to topics_path(:page => params[:page])
+      flash[:alert]="您僅能修改自己所發布的文章"
+    elsif @topic.update(topic_params)
      flash[:notice]="修改成功"
      redirect_to topics_path(:page => params[:page])
-    else render :action => :edit
+    else 
+      render :action => :edit  
+      flash[:alert]="文章主題與內容皆不可留白"
     end	
   end	
 
   def destroy
-  	 
+    if @topic.user!=current_user
+      redirect_to topics_path(:page => params[:page])
+      flash[:alert]="您僅能刪除自己所發布的文章"
+  	else 
     @topic.destroy
     flash[:alert]="刪除文章"
-
     redirect_to topics_path(:page => params[:page])
+    end
   end
      
   def about_user
@@ -82,7 +94,7 @@ class TopicsController < ApplicationController
 	private
 
 	  def topic_params
-	    params.require(:topic).permit(:name,:content,:comments_count,:category_ids=>[]) 
+	    params.require(:topic).permit(:name,:content,:comments_count,:category_ids) 
 	  end
 
 	  def set_topic
